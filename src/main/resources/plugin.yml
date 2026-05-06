@@ -2,7 +2,7 @@ name: TriLobby
 main: net.trilleo.mc.plugins.trilobby.Main
 version: ${projectVersion}
 api-version: 1.21
-authors: [Trilleo]
+authors: [ Trilleo ]
 
 commands:
   trilobby:
