@@ -1,36 +1,29 @@
-# ExamplePlugin - Developer Guide
+# TriLobby - Developer Guide
 
-This guide explains how to create **commands**, **listeners**, **GUIs**, **tasks**, **custom items**, **recipes**, and
-work with the **configuration** system using ExamplePlugin's registration system. Commands, listeners, GUIs, tasks,
-custom items, and recipes all follow the same pattern: extend a base class (or implement an interface), place the file
-in the correct package, and the plugin handles the rest automatically at startup. The configuration system provides
-typed access to `config.yml` values.
+This guide explains how to create **commands**, **listeners**, **GUIs**, and work with the **utility** systems using
+TriLobby's registration system. Commands, listeners, and GUIs all follow the same pattern: extend a base class (or
+implement an interface), place the file in the correct package, and the plugin handles the rest automatically at
+startup.
 
 ## How Auto-Registration Works
 
-ExamplePlugin uses a `PackageScanner` to discover classes at runtime. When the plugin starts, it scans specific packages
+TriLobby uses a `PackageScanner` to discover classes at runtime. When the plugin starts, it scans specific packages
 for concrete (non-abstract) classes and registers them automatically. You never need to edit `plugin.yml` or manually
 wire anything up.
 
-| System        | Base Class / Interface    | Package                               |
-|:--------------|:--------------------------|:--------------------------------------|
-| Commands      | `PluginCommand`           | `com.example.exampleplugin.commands`  |
-| Permissions   | *(derived from commands)* | *(automatic — no package needed)*     |
-| Listeners     | `Listener`                | `com.example.exampleplugin.listeners` |
-| GUIs          | `PluginGUI`               | `com.example.exampleplugin.guis`      |
-| Tasks         | `PluginTask`              | `com.example.exampleplugin.tasks`     |
-| Custom Items  | `PluginItem`              | `com.example.exampleplugin.items`     |
-| Recipes       | `PluginRecipe`            | `com.example.exampleplugin.recipes`   |
-| Configuration | `PluginConfig`            | `com.example.exampleplugin.config`    |
-| Player Data   | `PlayerData`              | `com.example.exampleplugin.data`      |
-| Server Data   | `ServerData`              | `com.example.exampleplugin.data`      |
+| System      | Base Class / Interface    | Package                                        |
+|:------------|:--------------------------|:-----------------------------------------------|
+| Commands    | `PluginCommand`           | `net.trilleo.mc.plugins.trilobby.commands`     |
+| Permissions | *(derived from commands)* | *(automatic — no package needed)*              |
+| Listeners   | `Listener`                | `net.trilleo.mc.plugins.trilobby.listeners`    |
+| GUIs        | `PluginGUI`               | `net.trilleo.mc.plugins.trilobby.guis`         |
 
 Subpackages are also scanned, so you can freely organize classes into folders like `commands/game/`,
 `listeners/player/`, or `guis/menus/`.
 
 ## Constructor Requirements
 
-Every command, listener, GUI, and task class must have one of the following constructors:
+Every command, listener, and GUI class must have one of the following constructors:
 
 | Constructor                          | When to Use                                   |
 |:-------------------------------------|:----------------------------------------------|
@@ -45,16 +38,16 @@ The plugin instance is injected automatically when a `JavaPlugin` constructor is
 
 To create a command, extend `PluginCommand` and place the class anywhere inside the `commands` package or a subpackage.
 
-By default every command is registered as a **sub-command** of `/exampleplugin` (alias `/ep`). For example, a command
-with `name = "reload"` becomes `/exampleplugin reload`. Set `isMainCommand = true` to register the command as a
+By default every command is registered as a **sub-command** of `/trilobby` (alias `/tl`). For example, a command
+with `name = "reload"` becomes `/trilobby reload`. Set `isMainCommand = true` to register the command as a
 standalone top-level command instead.
 
-When a player types `/exampleplugin` in-game, tab-completion automatically lists all available sub-commands.
+When a player types `/trilobby` in-game, tab-completion automatically lists all available sub-commands.
 
 ### Categories
 
 Commands are automatically categorised based on their **subpackage** (folder) inside the `commands` package. The
-category is used by the built-in `/exampleplugin help` command to group commands for display.
+category is used by the built-in `/trilobby help` command to group commands for display.
 
 | Command Location                | Category |
 |:--------------------------------|:---------|
@@ -64,7 +57,7 @@ category is used by the built-in `/exampleplugin help` command to group commands
 
 ### Help Command
 
-The plugin ships with a built-in `/exampleplugin help` command. It lists every registered command grouped by category,
+The plugin ships with a built-in `/trilobby help` command. It lists every registered command grouped by category,
 sorted alphabetically within each group, and formatted with colours for readability. Every command should provide a
 meaningful `description` so the help output is informative.
 
@@ -72,8 +65,8 @@ meaningful `description` so the help output is informative.
 
 | Property        | Type           | Default        | Description                                                              |
 |:----------------|:---------------|:---------------|:-------------------------------------------------------------------------|
-| `name`          | `String`       | *(required)*   | The command name (e.g. `"reload"` for `/exampleplugin reload`)           |
-| `description`   | `String`       | `""`           | A brief description shown in `/exampleplugin help` — always provide one  |
+| `name`          | `String`       | *(required)*   | The command name (e.g. `"reload"` for `/trilobby reload`)                |
+| `description`   | `String`       | `""`           | A brief description shown in `/trilobby help` — always provide one       |
 | `usage`         | `String`       | `"/<command>"` | Usage hint shown when the command fails                                  |
 | `aliases`       | `List<String>` | `emptyList()`  | Alternative names for the command (applicable to main commands only)     |
 | `permission`    | `String?`      | `null`         | Permission node required to use the command (auto-registered at startup) |
@@ -101,20 +94,20 @@ system handles the rest.
 
 ### Example (Sub-Command)
 
-This command is registered as `/exampleplugin ping` (the default behavior):
+This command is registered as `/trilobby ping` (the default behavior):
 
 ```kotlin
-package com.example.exampleplugin.commands
+package net.trilleo.mc.plugins.trilobby.commands
 
-import com.example.exampleplugin.registration.PluginCommand
+import net.trilleo.mc.plugins.trilobby.registration.PluginCommand
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
 class PingCommand : PluginCommand(
     name = "ping",
     description = "Check your latency",
-    usage = "/exampleplugin ping",
-    permission = "exampleplugin.ping"
+    usage = "/trilobby ping",
+    permission = "trilobby.ping"
 ) {
     override fun execute(sender: CommandSender, args: Array<out String>): Boolean {
         if (sender !is Player) {
@@ -129,26 +122,26 @@ class PingCommand : PluginCommand(
 
 ### Example with Tab Completion (Sub-Command)
 
-This command is registered as `/exampleplugin team`:
+This command is registered as `/trilobby team`:
 
 ```kotlin
-package com.example.exampleplugin.commands.game
+package net.trilleo.mc.plugins.trilobby.commands.game
 
-import com.example.exampleplugin.registration.PluginCommand
+import net.trilleo.mc.plugins.trilobby.registration.PluginCommand
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
 class TeamCommand : PluginCommand(
     name = "team",
     description = "Join a team",
-    usage = "/exampleplugin team <hunters|runners>",
-    permission = "exampleplugin.team"
+    usage = "/trilobby team <hunters|runners>",
+    permission = "trilobby.team"
 ) {
     private val teams = listOf("hunters", "runners")
 
     override fun execute(sender: CommandSender, args: Array<out String>): Boolean {
         if (args.isEmpty() || args[0] !in teams) {
-            sender.sendMessage("Usage: /exampleplugin team <hunters|runners>")
+            sender.sendMessage("Usage: /trilobby team <hunters|runners>")
             return false
         }
         sender.sendMessage("You joined the ${args[0]} team!")
@@ -166,27 +159,22 @@ class TeamCommand : PluginCommand(
 
 ### Example with Plugin Instance (Sub-Command)
 
-This command is registered as `/exampleplugin reload`:
+This command is registered as `/trilobby reload`:
 
 ```kotlin
-package com.example.exampleplugin.commands
+package net.trilleo.mc.plugins.trilobby.commands
 
-import com.example.exampleplugin.registration.PluginCommand
+import net.trilleo.mc.plugins.trilobby.registration.PluginCommand
 import org.bukkit.command.CommandSender
 import org.bukkit.plugin.java.JavaPlugin
 
 class ReloadCommand(private val plugin: JavaPlugin) : PluginCommand(
     name = "reload",
     description = "Reload the plugin configuration",
-    permission = "exampleplugin.reload"
+    permission = "trilobby.reload"
 ) {
     override fun execute(sender: CommandSender, args: Array<out String>): Boolean {
-        val main = plugin as? com.example.exampleplugin.Main
-        if (main == null) {
-            sender.sendMessage("Error: Plugin instance type mismatch. Unable to reload configuration.")
-            return true
-        }
-        main.pluginConfig.reload()
+        plugin.reloadConfig()
         sender.sendMessage("Configuration reloaded!")
         return true
     }
@@ -199,9 +187,9 @@ Set `isMainCommand = true` to register a standalone top-level command.
 This command is registered as `/globaltool`:
 
 ```kotlin
-package com.example.exampleplugin.commands
+package net.trilleo.mc.plugins.trilobby.commands
 
-import com.example.exampleplugin.registration.PluginCommand
+import net.trilleo.mc.plugins.trilobby.registration.PluginCommand
 import org.bukkit.command.CommandSender
 
 class GlobalToolCommand : PluginCommand(
@@ -231,7 +219,7 @@ Annotate each event handler method with `@EventHandler`. The method must accept 
 ### Example
 
 ```kotlin
-package com.example.exampleplugin.listeners
+package net.trilleo.mc.plugins.trilobby.listeners
 
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -251,7 +239,7 @@ class JoinListener : Listener {
 ### Example with Subpackage and Plugin Instance
 
 ```kotlin
-package com.example.exampleplugin.listeners.player
+package net.trilleo.mc.plugins.trilobby.listeners.player
 
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -304,7 +292,7 @@ or a subpackage.
 Use `GUIManager.open(player, id)` to open a registered GUI for a player:
 
 ```kotlin
-import com.example.exampleplugin.registration.GUIManager
+import net.trilleo.mc.plugins.trilobby.registration.GUIManager
 
 // Returns true if the GUI was found and opened, false otherwise
 GUIManager.open(player, "settings")
@@ -313,10 +301,10 @@ GUIManager.open(player, "settings")
 ### Example
 
 ```kotlin
-package com.example.exampleplugin.guis
+package net.trilleo.mc.plugins.trilobby.guis
 
-import com.example.exampleplugin.enums.FillMode
-import com.example.exampleplugin.registration.PluginGUI
+import net.trilleo.mc.plugins.trilobby.enums.FillMode
+import net.trilleo.mc.plugins.trilobby.registration.PluginGUI
 import net.kyori.adventure.text.Component
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -350,20 +338,20 @@ class SettingsGUI : PluginGUI(
 
 ### Opening a GUI from a Command
 
-A common pattern is opening a GUI when a player runs a command. This command is registered as `/exampleplugin settings`:
+A common pattern is opening a GUI when a player runs a command. This command is registered as `/trilobby settings`:
 
 ```kotlin
-package com.example.exampleplugin.commands
+package net.trilleo.mc.plugins.trilobby.commands
 
-import com.example.exampleplugin.registration.GUIManager
-import com.example.exampleplugin.registration.PluginCommand
+import net.trilleo.mc.plugins.trilobby.registration.GUIManager
+import net.trilleo.mc.plugins.trilobby.registration.PluginCommand
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
 class SettingsCommand : PluginCommand(
     name = "settings",
     description = "Open the settings menu",
-    permission = "exampleplugin.settings"
+    permission = "trilobby.settings"
 ) {
     override fun execute(sender: CommandSender, args: Array<out String>): Boolean {
         if (sender !is Player) {
@@ -433,9 +421,9 @@ The last row of the inventory contains:
 ### Example (LIST mode)
 
 ```kotlin
-package com.example.exampleplugin.guis
+package net.trilleo.mc.plugins.trilobby.guis
 
-import com.example.exampleplugin.registration.PagedPluginGUI
+import net.trilleo.mc.plugins.trilobby.registration.PagedPluginGUI
 import net.kyori.adventure.text.Component
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -471,10 +459,10 @@ map key is the **zero-based page index**; the inner map key is the **zero-based 
 `contentSlots - 1`).
 
 ```kotlin
-package com.example.exampleplugin.guis
+package net.trilleo.mc.plugins.trilobby.guis
 
-import com.example.exampleplugin.enums.PagedGUIMode
-import com.example.exampleplugin.registration.PagedPluginGUI
+import net.trilleo.mc.plugins.trilobby.enums.PagedGUIMode
+import net.trilleo.mc.plugins.trilobby.registration.PagedPluginGUI
 import net.kyori.adventure.text.Component
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -505,17 +493,17 @@ class StagesGUI : PagedPluginGUI(
 Paged GUIs are opened the same way as regular GUIs, using `GUIManager.open(player, id)`:
 
 ```kotlin
-package com.example.exampleplugin.commands
+package net.trilleo.mc.plugins.trilobby.commands
 
-import com.example.exampleplugin.registration.GUIManager
-import com.example.exampleplugin.registration.PluginCommand
+import net.trilleo.mc.plugins.trilobby.registration.GUIManager
+import net.trilleo.mc.plugins.trilobby.registration.PluginCommand
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
 class RewardsCommand : PluginCommand(
     name = "rewards",
     description = "Browse available rewards",
-    permission = "exampleplugin.rewards"
+    permission = "trilobby.rewards"
 ) {
     override fun execute(sender: CommandSender, args: Array<out String>): Boolean {
         if (sender !is Player) {
@@ -524,374 +512,6 @@ class RewardsCommand : PluginCommand(
         }
         GUIManager.open(sender, "rewards")
         return true
-    }
-}
-```
-
----
-
-## Tasks
-
-To create a scheduled task, extend `PluginTask` and place the class anywhere inside the `tasks` package or a
-subpackage. The task is automatically discovered, instantiated, and scheduled by `TaskRegistrar` when the plugin
-enables. All tasks are cancelled automatically when the plugin disables.
-
-### PluginTask Properties
-
-| Property | Type      | Default | Description                                                                                   |
-|:---------|:----------|:--------|:----------------------------------------------------------------------------------------------|
-| `delay`  | `Long`    | `0`     | Delay in ticks before the task first runs (20 ticks = 1 second)                               |
-| `period` | `Long`    | `-1`    | Ticks between subsequent runs; use any negative value to schedule the task as a one-shot task |
-| `async`  | `Boolean` | `false` | When `true`, the task runs off the main server thread (suitable for I/O or heavy computation) |
-
-### Scheduling Behaviour
-
-The combination of `period` and `async` determines which Bukkit scheduler method is used:
-
-| `async` | `period >= 0` | Bukkit call                  |
-|:--------|:--------------|:-----------------------------|
-| `false` | Yes           | `runTaskTimer`               |
-| `true`  | Yes           | `runTaskTimerAsynchronously` |
-| `false` | No            | `runTaskLater`               |
-| `true`  | No            | `runTaskLaterAsynchronously` |
-
-### Methods to Override
-
-| Method | Required | Description                                                          |
-|:-------|:---------|:---------------------------------------------------------------------|
-| `run`  | Yes      | Called once (one-shot) or repeatedly (repeating) when the task fires |
-
-### Example (Repeating Sync Task)
-
-This task broadcasts a message to all players every 5 minutes:
-
-```kotlin
-package com.example.exampleplugin.tasks
-
-import com.example.exampleplugin.registration.PluginTask
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.format.NamedTextColor
-import org.bukkit.Bukkit
-
-class BroadcastTask : PluginTask(
-    delay = 6000L,
-    period = 6000L
-) {
-    override fun run() {
-        Bukkit.broadcast(
-            Component.text("[ExamplePlugin] ", NamedTextColor.GOLD)
-                .append(Component.text("The server is running smoothly!", NamedTextColor.YELLOW))
-        )
-    }
-}
-```
-
-### Example (One-Shot Async Task)
-
-This task runs once 5 seconds after the plugin enables, off the main thread:
-
-```kotlin
-package com.example.exampleplugin.tasks
-
-import com.example.exampleplugin.registration.PluginTask
-
-class CleanupTask : PluginTask(
-    delay = 100L,
-    async = true
-) {
-    override fun run() {
-        // perform I/O or heavy computation here without blocking the server
-    }
-}
-```
-
-### Example with Plugin Instance
-
-When you need access to the plugin, declare a `JavaPlugin` constructor parameter:
-
-```kotlin
-package com.example.exampleplugin.tasks
-
-import com.example.exampleplugin.registration.PluginTask
-import org.bukkit.plugin.java.JavaPlugin
-
-class MetricsTask(private val plugin: JavaPlugin) : PluginTask(
-    delay = 200L,
-    period = 200L
-) {
-    override fun run() {
-        plugin.logger.info("Online players: ${plugin.server.onlinePlayers.size}")
-    }
-}
-```
-
----
-
-## Custom Items
-
-To create a custom item, extend `PluginItem` and place the class anywhere inside the `items` package or a subpackage.
-The item is automatically discovered by `ItemRegistrar` at startup and added to an in-memory registry keyed by its ID.
-
-Each stack produced by `create()` has the item's `id` embedded in its
-[Persistent Data Container](https://docs.papermc.io/paper/dev/pdc) under the key
-`exampleplugin:custom_item_id`. This marker is used by `matches()` to identify the item in inventory checks, and by
-`asChoice()` to match the item as a recipe ingredient.
-
-### Declaring Items as Kotlin Objects
-
-The recommended pattern is to declare items as **Kotlin `object`s** (singletons). This lets you reference the item
-directly by name in recipe files and other code without going through the registry:
-
-```kotlin
-val stack = MyItem.create()    // one item
-val stack3 = MyItem.create(3)  // three items
-```
-
-`ItemRegistrar` detects Kotlin objects automatically via the compiler-generated `INSTANCE` field — no special
-constructor is needed.
-
-### PluginItem Properties and Methods
-
-| Member        | Signature                  | Description                                                                       |
-|:--------------|:---------------------------|:----------------------------------------------------------------------------------|
-| `id`          | `String` *(constructor)*   | Unique lower-case identifier stored in every produced stack's PDC                 |
-| `ITEM_ID_KEY` | `NamespacedKey` *(static)* | The PDC key used to stamp the ID; namespace `exampleplugin`, key `custom_item_id` |
-| `create`      | `create(amount: Int = 1)`  | Returns a fully configured, ID-stamped `ItemStack`                                |
-| `buildItem`   | `buildItem(amount: Int)`   | **Override** — define material, name, lore, etc. using the `itemStack` DSL        |
-| `matches`     | `matches(ItemStack)`       | Returns `true` when the stack carries this item's ID in its PDC                   |
-| `asChoice`    | `asChoice()`               | Returns a `RecipeChoice.ExactChoice` for use as a recipe ingredient               |
-
-### Example (Kotlin Object)
-
-```kotlin
-package com.example.exampleplugin.items
-
-import com.example.exampleplugin.registration.PluginItem
-import com.example.exampleplugin.utils.itemStack
-import org.bukkit.Material
-import org.bukkit.enchantments.Enchantment
-import org.bukkit.inventory.ItemStack
-
-object ExcaliburItem : PluginItem("excalibur") {
-
-    override fun buildItem(amount: Int): ItemStack = itemStack(Material.DIAMOND_SWORD) {
-        amount(amount)
-        name("<bold><gradient:gold:yellow>Excalibur</gradient></bold>")
-        lore(
-            "<gray>A legendary blade of myth,",
-            "<gray>Damage: <red>+20"
-        )
-        enchant(Enchantment.SHARPNESS, 5)
-        unbreakable(true)
-    }
-}
-```
-
-### Example (Regular Class with Plugin Instance)
-
-When you need access to the plugin (e.g. for a `NamespacedKey` beyond the built-in ID key), declare a `JavaPlugin`
-constructor parameter:
-
-```kotlin
-package com.example.exampleplugin.items
-
-import com.example.exampleplugin.registration.PluginItem
-import com.example.exampleplugin.utils.itemStack
-import org.bukkit.Material
-import org.bukkit.NamespacedKey
-import org.bukkit.inventory.ItemStack
-import org.bukkit.persistence.PersistentDataType
-import org.bukkit.plugin.java.JavaPlugin
-
-class TrackedItem(private val plugin: JavaPlugin) : PluginItem("tracked_item") {
-
-    override fun buildItem(amount: Int): ItemStack = itemStack(Material.COMPASS) {
-        amount(amount)
-        name("<aqua>Tracking Compass")
-        pdc(NamespacedKey(plugin, "tracker_version"), PersistentDataType.INTEGER, 1)
-    }
-}
-```
-
-### Checking for a Custom Item at Runtime
-
-Use `matches` in a listener to detect when a player is holding or using a specific custom item:
-
-```kotlin
-import com.example.exampleplugin.items.ExcaliburItem
-import org.bukkit.event.EventHandler
-import org.bukkit.event.Listener
-import org.bukkit.event.entity.EntityDamageByEntityEvent
-import org.bukkit.entity.Player
-
-class ExcaliburListener : Listener {
-
-    @EventHandler
-    fun onHit(event: EntityDamageByEntityEvent) {
-        val attacker = event.damager as? Player ?: return
-        val held = attacker.inventory.itemInMainHand
-        if (ExcaliburItem.matches(held)) {
-            event.damage *= 2.0
-        }
-    }
-}
-```
-
-### Looking Up Items by ID
-
-When you only have the item ID as a string (e.g. from config), use `ItemRegistrar.get`:
-
-```kotlin
-import com.example.exampleplugin.registration.ItemRegistrar
-
-val item = ItemRegistrar.get("excalibur") ?: return
-player.inventory.addItem(item.create())
-```
-
----
-
-## Recipes
-
-To create a recipe, extend `PluginRecipe` and place the class anywhere inside the `recipes` package or a subpackage.
-The recipe is automatically discovered by `RecipeRegistrar` at startup, built, and registered with the server. All
-Minecraft crafting containers are supported — the container type is determined by the
-[`Recipe`](https://jd.papermc.io/paper/1.21/) subtype returned by `build`.
-
-All registered recipes are removed cleanly when the plugin disables (via `RecipeRegistrar.unregisterAll`), preventing
-stale recipes from persisting across reloads.
-
-### Supported Containers
-
-| Container                   | Recipe type               | Notes                                 |
-|:----------------------------|:--------------------------|:--------------------------------------|
-| Crafting table / player 2×2 | `ShapedRecipe`            | Fixed ingredient layout               |
-| Crafting table / player 2×2 | `ShapelessRecipe`         | Ingredients in any order              |
-| Furnace                     | `FurnaceRecipe`           | —                                     |
-| Blast furnace               | `BlastingRecipe`          | —                                     |
-| Smoker                      | `SmokingRecipe`           | —                                     |
-| Campfire                    | `CampfireRecipe`          | —                                     |
-| Stonecutter                 | `StonecuttingRecipe`      | —                                     |
-| Smithing table              | `SmithingTransformRecipe` | Requires template, base, and addition |
-
-### PluginRecipe Properties and Methods
-
-| Member          | Signature                        | Description                                                                        |
-|:----------------|:---------------------------------|:-----------------------------------------------------------------------------------|
-| `key`           | `String` *(constructor)*         | Unique name used to build the recipe's `NamespacedKey` via `namespacedKey(plugin)` |
-| `build`         | `build(plugin: JavaPlugin)`      | **Override** — build and return the Bukkit `Recipe` to register                    |
-| `namespacedKey` | `namespacedKey(plugin)`          | Helper — returns `NamespacedKey(plugin, key)` for the recipe constructor           |
-| `vanillaChoice` | `vanillaChoice(material)`        | Helper — returns a `RecipeChoice.MaterialChoice` for a vanilla `Material`          |
-| `customChoice`  | `customChoice(item: PluginItem)` | Helper — returns a `RecipeChoice.ExactChoice` that matches only stacks of `item`   |
-
-### Constructor Requirements
-
-Recipe classes follow the same constructor rules as commands and tasks:
-
-| Constructor                          | When to Use                                   |
-|:-------------------------------------|:----------------------------------------------|
-| No-arg constructor                   | When you don't need a reference to the plugin |
-| Constructor accepting a `JavaPlugin` | When you need to access the plugin instance   |
-
-### Example (Shaped Crafting Recipe — Custom Item Result)
-
-```kotlin
-package com.example.exampleplugin.recipes
-
-import com.example.exampleplugin.items.ExcaliburItem
-import com.example.exampleplugin.registration.PluginRecipe
-import org.bukkit.Material
-import org.bukkit.inventory.Recipe
-import org.bukkit.inventory.ShapedRecipe
-import org.bukkit.plugin.java.JavaPlugin
-
-class ExcaliburRecipe : PluginRecipe("excalibur_recipe") {
-
-    override fun build(plugin: JavaPlugin): Recipe {
-        val recipe = ShapedRecipe(namespacedKey(plugin), ExcaliburItem.create())
-        recipe.shape(
-            "DDD",
-            "D D",
-            "DDD"
-        )
-        recipe.setIngredient('D', vanillaChoice(Material.DIAMOND))
-        return recipe
-    }
-}
-```
-
-### Example (Shapeless Crafting Recipe — Custom Item Ingredient)
-
-Use `customChoice(item)` to require a plugin custom item as an ingredient:
-
-```kotlin
-package com.example.exampleplugin.recipes
-
-import com.example.exampleplugin.items.ExcaliburItem
-import com.example.exampleplugin.registration.PluginRecipe
-import org.bukkit.Material
-import org.bukkit.inventory.Recipe
-import org.bukkit.inventory.ShapelessRecipe
-import org.bukkit.plugin.java.JavaPlugin
-
-class ExcaliburRepairRecipe : PluginRecipe("excalibur_repair") {
-
-    override fun build(plugin: JavaPlugin): Recipe {
-        val recipe = ShapelessRecipe(namespacedKey(plugin), ExcaliburItem.create())
-        recipe.addIngredient(customChoice(ExcaliburItem))
-        recipe.addIngredient(vanillaChoice(Material.DIAMOND))
-        return recipe
-    }
-}
-```
-
-### Example (Furnace Recipe)
-
-```kotlin
-package com.example.exampleplugin.recipes
-
-import com.example.exampleplugin.registration.PluginRecipe
-import org.bukkit.Material
-import org.bukkit.inventory.FurnaceRecipe
-import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.Recipe
-import org.bukkit.plugin.java.JavaPlugin
-
-class IronNuggetRecipe : PluginRecipe("iron_nugget_smelt") {
-
-    override fun build(plugin: JavaPlugin): Recipe {
-        return FurnaceRecipe(
-            namespacedKey(plugin),
-            ItemStack(Material.IRON_NUGGET),
-            vanillaChoice(Material.IRON_INGOT),
-            0.1f,  // experience
-            200    // cooking time (ticks)
-        )
-    }
-}
-```
-
-### Example (Smithing Table Recipe)
-
-```kotlin
-package com.example.exampleplugin.recipes
-
-import com.example.exampleplugin.items.ExcaliburItem
-import com.example.exampleplugin.registration.PluginRecipe
-import org.bukkit.Material
-import org.bukkit.inventory.Recipe
-import org.bukkit.inventory.SmithingTransformRecipe
-import org.bukkit.plugin.java.JavaPlugin
-
-class ExcaliburUpgradeRecipe : PluginRecipe("excalibur_upgrade") {
-
-    override fun build(plugin: JavaPlugin): Recipe {
-        return SmithingTransformRecipe(
-            namespacedKey(plugin),
-            ExcaliburItem.create(),
-            vanillaChoice(Material.NETHERITE_UPGRADE_SMITHING_TEMPLATE), // template
-            customChoice(ExcaliburItem),                                  // base
-            vanillaChoice(Material.NETHERITE_INGOT)                      // addition
-        )
     }
 }
 ```
@@ -1060,7 +680,7 @@ val headerStyle = Style.style(
     TextDecoration.BOLD
 )
 
-val header = Component.text("ExamplePlugin", headerStyle)
+val header = Component.text("TriLobby", headerStyle)
 sender.sendMessage(header)
 ```
 
@@ -1090,7 +710,7 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 
-val message = Component.text("[ExamplePlugin] ", NamedTextColor.GOLD, TextDecoration.BOLD)
+val message = Component.text("[TriLobby] ", NamedTextColor.GOLD, TextDecoration.BOLD)
     .append(Component.text("Welcome to the server!", NamedTextColor.YELLOW))
 
 sender.sendMessage(message)
@@ -1405,7 +1025,7 @@ import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 
 player.sendPlayerListHeaderAndFooter(
-    Component.text("ExamplePlugin Server", NamedTextColor.GOLD, TextDecoration.BOLD),
+    Component.text("TriLobby Server", NamedTextColor.GOLD, TextDecoration.BOLD),
     Component.text("${player.ping}ms", NamedTextColor.GRAY)
 )
 ```
@@ -1420,25 +1040,13 @@ player.sendPlayerListHeaderAndFooter(Component.empty(), Component.empty())
 
 ## Utilities
 
-The `utils` package (`com.example.exampleplugin.utils`) contains helper classes and functions that reduce
+The `utils` package (`net.trilleo.mc.plugins.trilobby.utils`) contains helper classes and functions that reduce
 boilerplate across the plugin. See the [Utility Guide](UTILITY_GUIDE.md) for full documentation on the
-`itemStack` DSL builder and `CountdownUtil`.
+`itemStack` DSL builder, `TeamUtil`, `TagUtil`, `MessageUtil`, and `PDCUtil`.
 
 ### Enums
 
-Plugin-wide enums live in `com.example.exampleplugin.enums`.
-
-#### DisplayLocation
-
-`DisplayLocation` is used by `CountdownUtil` to control where countdown messages are rendered for the player.
-
-| Value        | Behaviour                                              |
-|:-------------|:-------------------------------------------------------|
-| `NONE`       | No message is displayed                                |
-| `CHAT`       | Message is sent to the player's chat                   |
-| `TITLE`      | Message is shown as a screen title                     |
-| `BOSS_BAR`   | Message is shown in a boss bar that depletes over time |
-| `ACTION_BAR` | Message is shown above the hotbar                      |
+Plugin-wide enums live in `net.trilleo.mc.plugins.trilobby.enums`.
 
 #### FillMode
 
@@ -1457,305 +1065,3 @@ Plugin-wide enums live in `com.example.exampleplugin.enums`.
 
 ---
 
-## Configuration
-
-ExamplePlugin provides a typed configuration wrapper — `PluginConfig` — around the standard Bukkit `config.yml`. It
-lives in the `com.example.exampleplugin.config` package and is created automatically when the plugin starts.
-
-### How It Works
-
-1. On first run, the default `config.yml` bundled inside the JAR (`src/main/resources/config.yml`) is copied to the
-   plugin's data folder.
-2. `PluginConfig` loads the YAML values into memory and exposes them through typed getter methods.
-3. At any time you can call `reload()` to re-read the file from disk, picking up changes made while the server is
-   running.
-
-The plugin's `Main` class exposes the instance as `pluginConfig`:
-
-```kotlin
-class Main : JavaPlugin() {
-    lateinit var pluginConfig: PluginConfig
-        private set
-
-    override fun onEnable() {
-        pluginConfig = PluginConfig(this)
-        // ...
-    }
-}
-```
-
-### Default config.yml
-
-Place default values in `src/main/resources/config.yml`. They are copied to the server's plugin data folder on first
-run:
-
-```yaml
-# ExamplePlugin Configuration
-
-# A friendly prefix shown before plugin messages
-message-prefix: "[ExamplePlugin]"
-```
-
-### Typed Getters
-
-`PluginConfig` provides the following typed getter methods. Each method accepts a YAML path and a default value that
-is returned when the key is absent or has the wrong type:
-
-| Method          | Signature                           | Description                                       |
-|:----------------|:------------------------------------|:--------------------------------------------------|
-| `getString`     | `getString(path, default = "")`     | Returns a `String` value                          |
-| `getInt`        | `getInt(path, default = 0)`         | Returns an `Int` value                            |
-| `getDouble`     | `getDouble(path, default = 0.0)`    | Returns a `Double` value                          |
-| `getBoolean`    | `getBoolean(path, default = false)` | Returns a `Boolean` value                         |
-| `getStringList` | `getStringList(path)`               | Returns a `List<String>` (empty list if absent)   |
-| `contains`      | `contains(path)`                    | Returns `true` when the path exists in the config |
-
-### Reloading
-
-Call `reload()` to re-read `config.yml` from disk without restarting the server. The method copies any new default
-keys into the file, saves it, and refreshes the in-memory values:
-
-```kotlin
-pluginConfig.reload()
-```
-
-The built-in `/exampleplugin reload` command already calls this method.
-
-### Accessing the Config from a Command
-
-Cast the injected `JavaPlugin` to `Main` to reach `pluginConfig`:
-
-```kotlin
-package com.example.exampleplugin.commands
-
-import com.example.exampleplugin.Main
-import com.example.exampleplugin.registration.PluginCommand
-import org.bukkit.command.CommandSender
-import org.bukkit.plugin.java.JavaPlugin
-
-class PrefixCommand(private val plugin: JavaPlugin) : PluginCommand(
-    name = "prefix",
-    description = "Show the configured message prefix",
-    permission = "exampleplugin.prefix"
-) {
-    override fun execute(sender: CommandSender, args: Array<out String>): Boolean {
-        val main = plugin as? Main ?: return true
-        val prefix = main.pluginConfig.getString("message-prefix", "[ExamplePlugin]")
-        sender.sendMessage("Current prefix: $prefix")
-        return true
-    }
-}
-```
-
-### Accessing the Config from a Listener
-
-The same pattern works for listeners — accept a `JavaPlugin` constructor parameter and cast to `Main`:
-
-```kotlin
-package com.example.exampleplugin.listeners
-
-import com.example.exampleplugin.Main
-import org.bukkit.event.EventHandler
-import org.bukkit.event.Listener
-import org.bukkit.event.player.PlayerJoinEvent
-import org.bukkit.plugin.java.JavaPlugin
-
-class WelcomeListener(private val plugin: JavaPlugin) : Listener {
-
-    @EventHandler
-    fun onPlayerJoin(event: PlayerJoinEvent) {
-        val main = plugin as? Main ?: return
-        val prefix = main.pluginConfig.getString("message-prefix", "[ExamplePlugin]")
-        event.player.sendMessage("$prefix Welcome, ${event.player.name}!")
-    }
-}
-```
-
----
-
-## Player Data
-
-`PlayerDataManager` provides automatic, per-player JSON persistence. Data is loaded from disk when a player joins and
-written back when they quit. A fallback `saveAll()` call in `onDisable` protects data for any players still online when
-the server shuts down.
-
-JSON files are stored at `<dataFolder>/playerdata/<uuid>.json`.
-
-The manager is already initialised in `Main.onEnable` and requires no further setup for basic use.
-
-### Basic Usage
-
-Retrieve a player's data container from anywhere with a `Player` reference:
-
-```kotlin
-import com.example.exampleplugin.data.PlayerDataManager
-
-val data = PlayerDataManager.get(player)
-val kills = data.getInt("kills")
-data.set("kills", kills + 1)
-```
-
-### Typed Getters and Setters
-
-| Method         | Signature                          | Description                                                                 |
-|:---------------|:-----------------------------------|:----------------------------------------------------------------------------|
-| `getString`    | `getString(key, default = "")`     | Returns a `String` value                                                    |
-| `getInt`       | `getInt(key, default = 0)`         | Returns an `Int` value                                                      |
-| `getDouble`    | `getDouble(key, default = 0.0)`    | Returns a `Double` value                                                    |
-| `getBoolean`   | `getBoolean(key, default = false)` | Returns a `Boolean` value                                                   |
-| `getJsonArray` | `getJsonArray(key)`                | Returns a `JsonArray` value, or an empty `JsonArray` when absent            |
-| `set`          | `set(key, value)`                  | Stores a `String`, `Int`, `Double`, `Boolean`, `JsonArray`, or `JsonObject` |
-| `remove`       | `remove(key)`                      | Removes the entry at `key`                                                  |
-| `has`          | `has(key)`                         | Returns `true` when `key` exists                                            |
-
-### Custom Subclass
-
-Extend `PlayerData` to add strongly-typed Kotlin properties:
-
-```kotlin
-package com.example.exampleplugin.data
-
-import java.util.UUID
-
-class MyPlayerData(uuid: UUID) : PlayerData(uuid) {
-    var kills: Int
-        get() = getInt("kills")
-        set(value) = set("kills", value)
-
-    var lastSeen: String
-        get() = getString("lastSeen")
-        set(value) = set("lastSeen", value)
-}
-```
-
-Register the factory **before** `PlayerDataManager.init` is called (i.e. before it is called in `Main.onEnable`).
-The best place to do this is at the top of `onEnable`, before the call chain reaches the data manager:
-
-```kotlin
-override fun onEnable() {
-    PlayerDataManager.setFactory { uuid -> MyPlayerData(uuid) }
-    // ... rest of onEnable
-}
-```
-
-Then cast the result of `get`:
-
-```kotlin
-val data = PlayerDataManager.get(player) as MyPlayerData
-data.kills++
-```
-
-### Example Listener
-
-```kotlin
-package com.example.exampleplugin.listeners
-
-import com.example.exampleplugin.data.PlayerDataManager
-import org.bukkit.event.EventHandler
-import org.bukkit.event.Listener
-import org.bukkit.event.entity.PlayerDeathEvent
-
-class KillTracker : Listener {
-
-    @EventHandler
-    fun onPlayerDeath(event: PlayerDeathEvent) {
-        val killer = event.player.killer ?: return
-        val data = PlayerDataManager.get(killer)
-        data.set("kills", data.getInt("kills") + 1)
-    }
-}
-```
-
----
-
-## Server Data
-
-`ServerDataManager` provides a single server-wide JSON data container. The data is loaded when the plugin enables and
-saved when it disables.
-
-The JSON file is stored at `<dataFolder>/serverdata.json`.
-
-The manager is already initialised in `Main.onEnable` and requires no further setup for basic use.
-
-### Basic Usage
-
-Retrieve the server data container from anywhere:
-
-```kotlin
-import com.example.exampleplugin.data.ServerDataManager
-
-val data = ServerDataManager.get()
-val events = data.getInt("eventCount")
-data.set("eventCount", events + 1)
-```
-
-### Typed Getters and Setters
-
-`ServerData` exposes the same typed methods as `PlayerData`:
-
-| Method         | Signature                          | Description                                                                 |
-|:---------------|:-----------------------------------|:----------------------------------------------------------------------------|
-| `getString`    | `getString(key, default = "")`     | Returns a `String` value                                                    |
-| `getInt`       | `getInt(key, default = 0)`         | Returns an `Int` value                                                      |
-| `getDouble`    | `getDouble(key, default = 0.0)`    | Returns a `Double` value                                                    |
-| `getBoolean`   | `getBoolean(key, default = false)` | Returns a `Boolean` value                                                   |
-| `getJsonArray` | `getJsonArray(key)`                | Returns a `JsonArray` value, or an empty `JsonArray` when absent            |
-| `set`          | `set(key, value)`                  | Stores a `String`, `Int`, `Double`, `Boolean`, `JsonArray`, or `JsonObject` |
-| `remove`       | `remove(key)`                      | Removes the entry at `key`                                                  |
-| `has`          | `has(key)`                         | Returns `true` when `key` exists                                            |
-
-### Custom Subclass
-
-Extend `ServerData` to add strongly-typed Kotlin properties:
-
-```kotlin
-package com.example.exampleplugin.data
-
-class MyServerData : ServerData() {
-    var totalKills: Int
-        get() = getInt("totalKills")
-        set(value) = set("totalKills", value)
-
-    var serverSeason: String
-        get() = getString("serverSeason", "1")
-        set(value) = set("serverSeason", value)
-}
-```
-
-Register the factory **before** `ServerDataManager.init` is called in `Main.onEnable`:
-
-```kotlin
-override fun onEnable() {
-    ServerDataManager.setFactory { MyServerData() }
-    // ... rest of onEnable
-}
-```
-
-Then cast the result of `get`:
-
-```kotlin
-val data = ServerDataManager.get() as MyServerData
-data.totalKills++
-```
-
-### Example Command
-
-```kotlin
-package com.example.exampleplugin.commands
-
-import com.example.exampleplugin.data.ServerDataManager
-import com.example.exampleplugin.registration.PluginCommand
-import org.bukkit.command.CommandSender
-
-class StatsCommand : PluginCommand(
-    name = "stats",
-    description = "Show server-wide statistics",
-    permission = "exampleplugin.stats"
-) {
-    override fun execute(sender: CommandSender, args: Array<out String>): Boolean {
-        val data = ServerDataManager.get()
-        sender.sendMessage("Total kills on this server: ${data.getInt("totalKills")}")
-        return true
-    }
-}
-```
