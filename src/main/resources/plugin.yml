@@ -1,11 +1,12 @@
-name: ExamplePlugin
-main: com.example.exampleplugin.Main
+name: TriLobby
+main: net.trilleo.mc.plugins.trilobby.Main
 version: ${projectVersion}
 api-version: 1.21
+authors: [Trilleo]
 
 commands:
-  exampleplugin:
-    description: Main command for the ExamplePlugin plugin
-    usage: /exampleplugin <subcommand> [args]
+  trilobby:
+    description: Main command for the TriLobby plugin
+    usage: /trilobby <subcommand> [args]
     aliases:
-      - ep
+      - tl
