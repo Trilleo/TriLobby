@@ -11,12 +11,12 @@ TriLobby uses a `PackageScanner` to discover classes at runtime. When the plugin
 for concrete (non-abstract) classes and registers them automatically. You never need to edit `plugin.yml` or manually
 wire anything up.
 
-| System      | Base Class / Interface    | Package                                        |
-|:------------|:--------------------------|:-----------------------------------------------|
-| Commands    | `PluginCommand`           | `net.trilleo.mc.plugins.trilobby.commands`     |
-| Permissions | *(derived from commands)* | *(automatic — no package needed)*              |
-| Listeners   | `Listener`                | `net.trilleo.mc.plugins.trilobby.listeners`    |
-| GUIs        | `PluginGUI`               | `net.trilleo.mc.plugins.trilobby.guis`         |
+| System      | Base Class / Interface    | Package                                     |
+|:------------|:--------------------------|:--------------------------------------------|
+| Commands    | `PluginCommand`           | `net.trilleo.mc.plugins.trilobby.commands`  |
+| Permissions | *(derived from commands)* | *(automatic — no package needed)*           |
+| Listeners   | `Listener`                | `net.trilleo.mc.plugins.trilobby.listeners` |
+| GUIs        | `PluginGUI`               | `net.trilleo.mc.plugins.trilobby.guis`      |
 
 Subpackages are also scanned, so you can freely organize classes into folders like `commands/game/`,
 `listeners/player/`, or `guis/menus/`.
