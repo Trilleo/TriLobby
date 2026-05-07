@@ -19,5 +19,6 @@ class JoinSpawnListener(private val plugin: JavaPlugin) : Listener {
     fun onPlayerJoin(event: PlayerJoinEvent) {
         val spawn = (plugin as Main).pluginConfig.getServerSpawn() ?: return
         event.player.teleport(spawn)
+        event.joinMessage(null)
     }
 }
