@@ -2,3 +2,13 @@
 
 # A friendly prefix shown before plugin messages
 message-prefix: "[TriLobby]"
+
+# Server spawn point
+# The location players are teleported to when they join or fall out of the world
+server-spawn:
+  world: world
+  x: 0.0
+  y: 64.0
+  z: 0.0
+  yaw: 0.0
+  pitch: 0.0

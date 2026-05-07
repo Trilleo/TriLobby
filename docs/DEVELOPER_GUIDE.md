@@ -34,6 +34,69 @@ The plugin instance is injected automatically when a `JavaPlugin` constructor is
 
 ---
 
+## Configuration
+
+TriLobby wraps the Bukkit `config.yml` in a typed `PluginConfig` class. The instance is created during
+`onEnable` and exposed on the main plugin class:
+
+```kotlin
+val config: PluginConfig = (plugin as Main).pluginConfig
+```
+
+### Accessing Config Values
+
+`PluginConfig` provides typed getters that mirror the YAML structure:
+
+| Method                      | Return Type    | Description                                           |
+|:----------------------------|:---------------|:------------------------------------------------------|
+| `getString(path, default)`  | `String`       | String value at `path`, or `default` if absent        |
+| `getInt(path, default)`     | `Int`          | Integer value at `path`, or `default` if absent       |
+| `getDouble(path, default)`  | `Double`       | Double value at `path`, or `default` if absent        |
+| `getBoolean(path, default)` | `Boolean`      | Boolean value at `path`, or `default` if absent       |
+| `getStringList(path)`       | `List<String>` | List of strings at `path`, or an empty list if absent |
+| `contains(path)`            | `Boolean`      | `true` when `path` exists in the loaded config        |
+
+### Built-in Properties
+
+| Property           | Key in `config.yml` | Description                                                                |
+|:-------------------|:--------------------|:---------------------------------------------------------------------------|
+| `messagePrefix`    | `message-prefix`    | Prefix prepended to plugin chat messages                                   |
+| `getServerSpawn()` | `server-spawn`      | Returns the server spawn `Location`, or `null` if the world is not loaded  |
+
+### Server Spawn Point
+
+The `server-spawn` section of `config.yml` defines where players are teleported when they join the server
+or fall out of the world. All six fields are required:
+
+```yaml
+server-spawn:
+  world: world   # world name
+  x: 0.0
+  y: 64.0
+  z: 0.0
+  yaw: 0.0       # horizontal facing angle (-180 to 180)
+  pitch: 0.0     # vertical facing angle (-90 to 90)
+```
+
+Retrieve the spawn as a `Location` from inside a command or listener:
+
+```kotlin
+val spawn: Location? = (plugin as Main).pluginConfig.getServerSpawn()
+```
+
+`getServerSpawn()` returns `null` when the configured world is not currently loaded.
+
+### Reloading the Configuration
+
+Call `reload()` on the `PluginConfig` instance to re-read `config.yml` from disk without restarting the
+server. This is done automatically by the built-in `/trilobby reload` command:
+
+```kotlin
+(plugin as Main).pluginConfig.reload()
+```
+
+---
+
 ## Commands
 
 To create a command, extend `PluginCommand` and place the class anywhere inside the `commands` package or a subpackage.
