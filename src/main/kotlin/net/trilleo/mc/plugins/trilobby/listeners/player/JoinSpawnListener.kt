@@ -5,6 +5,8 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.plugin.java.JavaPlugin
+import org.bukkit.potion.PotionEffect
+import org.bukkit.potion.PotionEffectType
 
 /**
  * Teleports every player to the configured server spawn point when they join.
@@ -20,5 +22,23 @@ class JoinSpawnListener(private val plugin: JavaPlugin) : Listener {
         val spawn = (plugin as Main).pluginConfig.getServerSpawn() ?: return
         event.player.teleport(spawn)
         event.joinMessage(null)
+
+        val speedEffect = PotionEffect(
+            PotionEffectType.SPEED,
+            PotionEffect.INFINITE_DURATION,
+            1,
+            false,
+            false
+        )
+        val saturationEffect = PotionEffect(
+            PotionEffectType.SATURATION,
+            PotionEffect.INFINITE_DURATION,
+            1,
+            false,
+            false
+        )
+
+        event.player.addPotionEffect(speedEffect)
+        event.player.addPotionEffect(saturationEffect)
     }
 }
