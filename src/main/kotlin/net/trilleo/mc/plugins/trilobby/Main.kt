@@ -1,5 +1,6 @@
 package net.trilleo.mc.plugins.trilobby
 
+import net.trilleo.mc.plugins.trilobby.config.PluginConfig
 import net.trilleo.mc.plugins.trilobby.data.PlayerDataManager
 import net.trilleo.mc.plugins.trilobby.data.ServerDataManager
 import net.trilleo.mc.plugins.trilobby.registration.CommandRegistrar
@@ -11,10 +12,13 @@ import org.bukkit.plugin.java.JavaPlugin
 
 class Main : JavaPlugin() {
 
+    /** Typed configuration wrapper – available after [onEnable]. */
+    lateinit var pluginConfig: PluginConfig
+        private set
+
     override fun onEnable() {
-        saveDefaultConfig()
-        val prefix = config.getString("message-prefix") ?: "[TriLobby]"
-        MessageUtil.init(prefix)
+        pluginConfig = PluginConfig(this)
+        MessageUtil.init(pluginConfig.messagePrefix)
 
         ServerDataManager.init(this)
         PlayerDataManager.init(this)

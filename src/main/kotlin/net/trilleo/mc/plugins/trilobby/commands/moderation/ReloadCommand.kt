@@ -1,5 +1,6 @@
 package net.trilleo.mc.plugins.trilobby.commands.moderation
 
+import net.trilleo.mc.plugins.trilobby.Main
 import net.trilleo.mc.plugins.trilobby.registration.PluginCommand
 import net.trilleo.mc.plugins.trilobby.utils.MessageUtil
 import net.trilleo.mc.plugins.trilobby.utils.sendPrefixed
@@ -19,9 +20,9 @@ class ReloadCommand(private val plugin: JavaPlugin) : PluginCommand(
     permission = "trilobby.reload"
 ) {
     override fun execute(sender: CommandSender, args: Array<out String>): Boolean {
-        plugin.reloadConfig()
-        val prefix = plugin.config.getString("message-prefix") ?: "[TriLobby]"
-        MessageUtil.init(prefix)
+        val main = plugin as Main
+        main.pluginConfig.reload()
+        MessageUtil.init(main.pluginConfig.messagePrefix)
         if (sender is Player) {
             sender.sendPrefixed("Configuration reloaded!")
         } else {
