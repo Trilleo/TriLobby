@@ -6,6 +6,7 @@ import net.trilleo.mc.plugins.trilobby.registration.GUIManager
 import net.trilleo.mc.plugins.trilobby.utils.PDCUtil
 import org.bukkit.NamespacedKey
 import org.bukkit.Sound
+import org.bukkit.SoundCategory
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
@@ -41,6 +42,7 @@ class MainItemListener(private val plugin: JavaPlugin) : Listener {
                 player.playSound(
                     player,
                     Sound.ENTITY_EXPERIENCE_ORB_PICKUP,
+                    SoundCategory.MASTER,
                     1.0f,
                     1.0f
                 )
