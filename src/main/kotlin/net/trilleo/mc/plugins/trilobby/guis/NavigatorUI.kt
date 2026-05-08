@@ -80,7 +80,7 @@ class NavigatorUI(plugin: JavaPlugin) : PluginGUI(
         }
 
         if (event.slot == gameIndex.getValue("smpButtonSlot")) {
-            player.performCommand("/server smp")
+            player.performCommand("smp")
         }
     }
 }
